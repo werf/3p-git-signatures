@@ -6,7 +6,27 @@ VERSION="v0.1.0"
 PROGRAM="${0##*/}"
 COMMAND="$1"
 
-GETOPT=$(command -v gnu-getopt || command -v getopt)
+getopt_path() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        local mac_getopt='/opt/homebrew/opt/gnu-getopt/bin/getopt'
+        if [[ -x "$mac_getopt" ]]; then
+            echo "$mac_getopt"
+            return 0
+        fi
+    fi
+
+    local found_getopt=$(command -v gnu-getopt || command -v getopt)
+
+    if [[ -z "$found_getopt" ]]; then
+        echo "Error: getopt is not installed." >&2
+        exit 1
+    fi
+
+    echo "$found_getopt"
+}
+
+
+GETOPT=$(getopt_path)
 DATE=$(command -v gdate || command -v date)
 SHUF=$(command -v gshuf || command -v shuf)
 
