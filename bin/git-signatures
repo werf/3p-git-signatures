@@ -8,15 +8,15 @@ COMMAND="$1"
 
 getopt_path() {
     if [[ "$(uname)" == "Darwin" ]]; then
-        local mac_getopt='/opt/homebrew/opt/gnu-getopt/bin/getopt'
-        if [[ -x "$mac_getopt" ]]; then
-            echo "$mac_getopt"
+        local brew_prefix
+        brew_prefix=$(brew --prefix gnu-getopt 2>/dev/null)
+        if [[ -n "$brew_prefix" ]]; then
+            echo "$brew_prefix/bin/getopt"
             return 0
         fi
     fi
 
     local found_getopt=$(command -v gnu-getopt || command -v getopt)
-
     if [[ -z "$found_getopt" ]]; then
         echo "Error: getopt is not installed." >&2
         exit 1
