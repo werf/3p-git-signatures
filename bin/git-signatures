@@ -6,7 +6,40 @@ VERSION="v0.1.0"
 PROGRAM="${0##*/}"
 COMMAND="$1"
 
-GETOPT=$(command -v gnu-getopt || command -v getopt)
+getopt_path() {
+    local os_name=$(uname)
+    local hint_macos="Hint: Install GNU getopt using 'brew install gnu-getopt'"
+    local hint_linux="Hint: Install GNU getopt using your package manager (e.g., 'sudo apt install getopt')"
+
+    if [[ "$os_name" == "Darwin" ]]; then
+        if brew list gnu-getopt &>/dev/null; then
+            local brew_prefix=$(brew --prefix gnu-getopt 2>/dev/null)
+            if [[ -n "$brew_prefix" ]]; then
+                echo "$brew_prefix/bin/getopt"
+                return 0
+            fi 
+        fi
+    fi    
+
+    local found_getopt=$(command -v gnu-getopt || command -v getopt)
+
+    if [[ -z "$found_getopt" ]]; then
+        echo "Error: getopt is not installed." >&2
+        [[ "$os_name" == "Darwin" ]] && echo "$hint_macos" >&2 || echo "$hint_linux" >&2
+        exit 1
+    fi
+
+    if "$found_getopt" -V 2>&1 | grep -q "getopt"; then
+        echo "$found_getopt"
+    else
+        echo "Error: Found getopt is not GNU getopt." >&2
+        [[ "$os_name" == "Darwin" ]] && echo "$hint_macos" >&2 || echo "$hint_linux" >&2
+        exit 1
+    fi
+}
+
+
+GETOPT=$(getopt_path)
 DATE=$(command -v gdate || command -v date)
 SHUF=$(command -v gshuf || command -v shuf)
 
