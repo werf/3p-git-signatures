@@ -35,6 +35,7 @@ getopt_path() {
         echo "Error: Found getopt is not GNU getopt." >&2
         [[ "$os_name" == "Darwin" ]] && echo "$hint_macos" >&2 || echo "$hint_linux" >&2
         exit 1
+	fi
 }
 
 
