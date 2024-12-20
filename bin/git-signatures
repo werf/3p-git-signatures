@@ -330,7 +330,13 @@ cmd_add() {
 	| openssl base64 -A \
 	| git notes --ref signatures append --file=- "$ref"
 
-	TAG_TARGET=$(git rev-parse refs/notes/signatures 2>/dev/null) && git tag -f latest-signature "$TAG_TARGET"
+	TAG_TARGET=$(git rev-parse refs/notes/signatures 2>/dev/null) || {
+		error "Error: refs/notes/signatures not found"; exit 1
+	}
+	
+	git tag -m "add signature" -f latest-signature "$TAG_TARGET" || {
+		error "Error: Failed to update tag latest-signature"; exit 1		
+	}
 
 	[[ "$push" -eq "0" ]] || $PROGRAM push
 }
